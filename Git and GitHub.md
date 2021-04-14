@@ -25,15 +25,15 @@ So, git lets you
 
 Let's set up a local git and stay organized. I'll assume you have git installed and know how to open a terminal, but that's about it.
 
-#### Getting started
+### Getting started
 
 `init` makes a directory ready for being version-controlled by git. Go to the root directory of your project, however you wish to define "project" in your work, in a terminal. This directory can be empty if you're starting something new, or may already contain a bunch of files from what you've done so far. Type `git init` and hit enter and voilà, the directory is now git ready. It won't look any different, but you can type `git status` to see it really is git-ready.
 
-#### Staging
+### Staging
 
 Now, if you don't have any project files yet, start doing some work to create some. A description is generally a good start. Now that you have some files, it is time to tell git that you want these files to be part of the git workflow. To do this, you add a file to git by typing `git add example.txt` or just `git add .` to add all files and their changes to git. Typing `git status` tells you these files have been added but not yet committed (saved to a next version of your project). Let's do that now.
 
-#### Committing
+### Committing
 
 Committing is done by typing `git commit -m "Commit message here"`. The -m stands for "message", these are important (so important they are mandatory) to keep track of what is new in this version. So if you add a reference to a paper, write that you did so in this message. It is good practice keeping them short and descriptive.
 
@@ -42,13 +42,13 @@ Now that this is done, all your files are part of that new version of your proje
 After working on your files, you again have to tell git that these are changes that should be part of your next commit. You can do so again by using `git add`, but there is also a shortcut for the common task of running `git add .` and then `git commit -m "Message here"`: `git commit -a -m "Message here"` adds all changes to the files and commits those
 in one go.
 
-#### Branches
+### Branches
 
 If you want, you can branch off a copy of your project to try something new without your experiment messing with your current (master) branch. You can switch back and forth between these branches to edit them however you want, and commit things along the way. You can branch out any stage of the project at any time, either from the main branch or from sub-branches. You can use `git branch new_branch_name` and then `git checkout new_branch_name` to create a new branch from the one you are currently in and then switch to that new branch, or do `git checkout -b new_branch_name` to create and switch in one command.
 
 In this new branch you can add, change, and delete files and directories without that affecting the original branch. Running `git checkout master` will get you back to the master branch where everything is as it was. You can change things there too, without that affection the derived branch. They live their separate lives unaware of each other.
 
-#### Merging
+### Merging
 
 At some point you may actually want to bring the changes you made in the sub-branch into the one it was derived from, such as when the thing you were trying worked, and now should replace the older version. To do this, go to the target branch (master, in this example): `git checkout master`. By running `git merge new_branch_name` the changes from that branch will be incorporated into the main one. If you had changed anything in the master branch after the split, this will produce a conflict; git has no way of knowing which of the two versions of a line of code you want, as both are newer than the original from the time of the branching. In that case git will warn you of such conflicts, and it will show in the code as:
 
@@ -64,7 +64,7 @@ It is up to you to resolve such conflicts. It's your project. Don't forget to ad
 
 Now that you have merged the branch into the master branch, you can remove the new branch if you want to: `git branch -d new_branch_name`.
 
-#### Ignoring files
+### Ignoring files
 
 There are files that you may not want git to control, certainly things like encryption keys or other confidential files, but also log files or generated output. To make sure git does not add those even when running `git add .` or `git commit -a`, simply create a file called `.gitignore`. You can open this file and add patterns for files you want git to ignore on separate lines, such as `passwords.txt` but also using wildcards such
 as `*.log` or `output/*`
