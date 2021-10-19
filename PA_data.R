@@ -1,25 +1,34 @@
 library(dplyr)
 
 ## 2.1. Download the PA data from GBIF.
- ### get some help with this
-## 2.2. Read into R
 
-destfile <- "Data/gbif_PA.zip"
-gbif_occurrence <- read.table(unzip(zipfile=destfile, files="occurrence.txt"), header=T, sep="\t", quote="", fill=FALSE)
-gbif_event <- read.table(unzip(destfile,files="event.txt"), header=T, sep="\t", quote="", fill=FALSE)
+ #TODO
+
+## 2.2. Read into R and prepare for filtering
+
+gbif_data_trd <- read.table(unzip(zipfile = "Data/gbif_PA.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=FALSE) %>%
+  select(c(eventID, decimalLatitude, decimalLongitude,
+           coordinateUncertaintyInMeters, scientificName,
+           individualCount)) 
 
 
+gbif_data_oslo <- read.table(unzip(zipfile = "Data/gbif_PA_oslo.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=TRUE) %>%
+  subset(., !is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+  subset(., year != 0) %>%
+  mutate(eventID = paste(day, month, year, decimalLatitude, decimalLongitude, sep = "_")) %>%
+  mutate(count = 1) %>%
+  group_by(eventID, scientificName) %>%
+  mutate(count = sum(count)) %>%
+  mutate(individualCount = ifelse(count >= 1, 1, 0)) %>%
+  select(c(decimalLatitude, decimalLongitude, 
+           individualCount, scientificName, eventID, coordinateUncertaintyInMeters)) %>%
+  data.frame()
 
-## 2.3. Filter the PA data from the Red List Data species list (made in step 1). 
+###  2.3. Filter the PA data from the Red List Data species list (made in step 1) --- 
 ## Will result in three files. (want visit numbers too, column per variable).
-data <- select(gbif_occurrence, c(eventID, decimalLatitude, decimalLongitude,
-                                     coordinateUncertaintyInMeters, scientificName,
-                                     individualCount)) 
 
 
-head(data)
-
-## select data based on redlist
+## filter data based on redlist
 
 # read redlist data
 redlist <- read.csv2("Data/Rodlista2015_Artsdatabanken_format.csv")[c("Vitenskapelig.navn", "Kategori")]
@@ -28,22 +37,21 @@ redlist <- read.csv2("Data/Rodlista2015_Artsdatabanken_format.csv")[c("Vitenskap
 # note: species names in PA file does not seem to be formatted in a consequent way, 
 # names formatted differently than the redlist will not be filtered
 
-CR.PA.data <- data %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("CR")])
-EN.PA.data <- data %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("EN", "ENº")])
-VU.PA.data <- data %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("VU", "VUº")])
+CR.PA.data.trd <- gbif_data_trd %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("CR")])
+EN.PA.data.trd <- gbif_data_trd %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("EN", "ENº")])
+VU.PA.data.trd <- gbif_data_trd %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("VU", "VUº")])
+
+CR.PA.data.osl <- gbif_data_oslo %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("CR")])
+EN.PA.data.osl <- gbif_data_oslo %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("EN", "ENº")])
+VU.PA.data.osl <- gbif_data_oslo %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("VU", "VUº")])
+
+CR.PA.data <- rbind(CR.PA.data.trd, CR.PA.data.osl)
+EN.PA.data <- rbind(EN.PA.data.trd, EN.PA.data.osl)
+VU.PA.data <- rbind(VU.PA.data.trd, VU.PA.data.osl)
 
 write.table(CR.PA.data, file = "data/CR.PA.data.txt")
 write.table(EN.PA.data, file = "data/EN.PA.data.txt")
 write.table(VU.PA.data, file = "data/VU.PA.data.txt")
-
-#VU.PA.data <- data %>% subset(scientificName %in% redlist$Vitenskapelig.navn[redlist$Kategori %in% c("VU", "VUº")]) %>%
-#  group_by(eventID, scientificName) %>%
-#  mutate(occurrences = sum(individualCount)) %>%
-#  data.frame()
-
-
-
-
 
 
 ## 2.4. Rescale & rasterize these three files (will have dataframe with lat and long which gives back centroid points of grid squares, we can define the size here). 
