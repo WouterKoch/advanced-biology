@@ -182,9 +182,25 @@ Spatial_data <- organize_data(PO_data,
                               meshpars = Meshpars,
                               boundary = norway.poly)
 
+##setwd
 Spatial_model <- bru_sdm(spatial_data, spatialcovariates, specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
 
+saveRDS(Spatial_model, 'Spatial_model.RDS')
+
+projections_lin <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
+                           datasetstopredict = Spatial_model$dataset_names,
+                           covariates = NULL, intercept = TRUE, species = TRUE,
+                           spatial = TRUE, fun = 'linear', n.samples = 1000)
+
+saveRDS(projections_lin, 'projections_lin.RDS')
+
+projections_exp <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
+                           datasetstopredict = Spatial_model$dataset_names,
+                           covariates = NULL, intercept = TRUE, species = TRUE,
+                           spatial = TRUE, fun = 'exp', n.samples = 1000)
+
+saveRDS(projections_exp, 'projections_exp.RDS')
 
 
 
