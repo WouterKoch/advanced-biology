@@ -138,7 +138,8 @@ ggsave('PA_plot.png',
        width = 40,
        height = 40,
        units = 'cm')
-
+PA_data$scientificName <- gsub(' ','_',PA_data$scientificName)
+saveRDS(PA_data, 'PA_data.RDS')
 ##Read in PO data
 
 PO_data <- read.csv('Presence only - VU (selected species).csv')
@@ -165,6 +166,10 @@ ggsave('PO_plot.png',
        width = 40,
        height = 40,
        units = 'cm')
+
+PO_data$scientificName <- gsub(' ','_',PO_data$scientificName)
+saveRDS(PO_data, 'PO_data.RDS')
+
 ##Read in habitat + climate data
 
 
@@ -182,9 +187,28 @@ Spatial_data <- organize_data(PO_data,
                               meshpars = Meshpars,
                               boundary = norway.poly)
 
-Spatial_model <- bru_sdm(spatial_data, spatialcovariates, specieseffects = TRUE,
+##setwd
+raster_covariates <- as(raster_covariates, 'SpatialPixelsDataFrame')
+Spatial_model <- bru_sdm(spatial_data, spatialcovariates = raster_covariates,
+                         covariatestoinclude = c('mean_temperature_warmest_quarter','annual_percipitation'),
+                         specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
 
+saveRDS(Spatial_model, 'Spatial_model.RDS')
+
+projections_lin <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
+                           datasetstopredict = Spatial_model$dataset_names,
+                           covariates = NULL, intercept = TRUE, species = TRUE,
+                           spatial = TRUE, fun = 'linear', n.samples = 1000)
+
+saveRDS(projections_lin, 'projections_lin.RDS')
+
+projections_exp <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
+                           datasetstopredict = Spatial_model$dataset_names,
+                           covariates = NULL, intercept = TRUE, species = TRUE,
+                           spatial = TRUE, fun = 'exp', n.samples = 1000)
+
+saveRDS(projections_exp, 'projections_exp.RDS')
 
 
 
