@@ -2,17 +2,25 @@ library(dplyr)
 
 ## 2.1. Download the PA data from GBIF.
 
- #TODO
+download_url_trd <- "https://gbif.vm.ntnu.no/ipt/archive.do?r=vascularplantfieldnotes"
+if(!file.exists("C:/advanced-biology/Scripts/Data/gbif_PA_trd.zip")) {
+  download.file(url=download_url_trd, destfile="C:/advanced-biology/Scripts/Data/gbif_PA_trd.zip", mode = "wb")
+}
+
+download_url_osl <- "https://ipt.gbif.no/archive.do?r=o_vxl"
+if(!file.exists("Data/gbif_PA_osl.zip")) {
+  download.file(url=download_url_osl, destfile="Data/gbif_PA_osl.zip", mode = "wb")
+}
 
 ## 2.2. Read into R and prepare for filtering
 
-gbif_data_trd <- read.table(unzip(zipfile = "Data/gbif_PA.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=FALSE) %>%
+gbif_data_trd <- read.table(unzip(zipfile = "Data/gbif_PA_trd.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=FALSE) %>%
   select(c(eventID, decimalLatitude, decimalLongitude,
            coordinateUncertaintyInMeters, scientificName,
            individualCount)) 
 
 
-gbif_data_oslo <- read.table(unzip(zipfile = "Data/gbif_PA_oslo.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=TRUE) %>%
+gbif_data_oslo <- read.table(unzip(zipfile = "Data/gbif_PA_osl.zip", files="occurrence.txt"), header=T, sep="\t", quote="", fill=TRUE) %>%
   subset(., !is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
   subset(., year != 0) %>%
   mutate(eventID = paste(day, month, year, decimalLatitude, decimalLongitude, sep = "_")) %>%
@@ -49,9 +57,9 @@ CR.PA.data <- rbind(CR.PA.data.trd, CR.PA.data.osl)
 EN.PA.data <- rbind(EN.PA.data.trd, EN.PA.data.osl)
 VU.PA.data <- rbind(VU.PA.data.trd, VU.PA.data.osl)
 
-write.table(CR.PA.data, file = "data/CR.PA.data.txt")
-write.table(EN.PA.data, file = "data/EN.PA.data.txt")
-write.table(VU.PA.data, file = "data/VU.PA.data.txt")
+write.table(CR.PA.data, file = "Data/CR.PA.data.txt")
+write.table(EN.PA.data, file = "Data/EN.PA.data.txt")
+write.table(VU.PA.data, file = "Data/VU.PA.data.txt")
 
 
 ## 2.4. Rescale & rasterize these three files (will have dataframe with lat and long which gives back centroid points of grid squares, we can define the size here). 
