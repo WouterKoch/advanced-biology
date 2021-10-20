@@ -126,6 +126,17 @@ for (i in 1:nrow(unique_grid)) {
 
 PA_data <- do.call(rbind.SpatialPointsDataFrame, grid_index)
 
+ggplot()  + gg(PA_data, aes(col = factor(individualCount))) +
+  facet_grid(~scientificName) +
+  gg(norway.poly) +
+  gg(spgrdWithin) +
+  coord_equal() +
+  scale_fill_continuous(guide = guide_legend()) +
+  scale_color_manual(labels = c('Absent', "Present"), values = c("#d11141", "#00aedb")) +
+  labs(x = 'Longitude', y = 'Latitude', col = 'Grid Observation') +
+  theme_classic() +
+  theme(legend.position="bottom")
+
 ##Read in habitat + climate data
 
 
