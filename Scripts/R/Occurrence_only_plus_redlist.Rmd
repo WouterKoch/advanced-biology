@@ -1,0 +1,43 @@
+---
+title: "Selecting "
+author: "Wouter Koch"
+date: "2021-10-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r download gbif data, echo = FALSE}
+download_url <- "https://api.gbif.org/v1/occurrence/download/request/0030840-210914110416597.zip"
+if(!file.exists("../../Data/Presence_only.zip")) {
+  download.file(url=download_url, destfile="../../Data/Presence_only.zip", quiet=FALSE)
+}
+```
+
+```{r read gbif data, echo = FALSE}
+library(tidyverse)
+
+gbif <- read_delim(unz("../../Data/Presence_only.zip", "verbatim.txt"),  delim ="\t", show_col_types = FALSE)
+gbif <- select(gbif, scientificName, decimalLatitude, decimalLongitude)
+
+```
+
+```{r download redlist data, echo = FALSE}
+download_url <- "https://artsdatabanken.no/Rodliste2015/sok/Eksport?kategori=re%2ccr%2cen%2cvu%2cnt%2cdd&vurderings%u00e5r=2015&vurderingscontext=n&taxonrank=species"
+if(!file.exists("../../Data/Rodlista2015.csv")) {
+  download.file(url=download_url, destfile="../../Data/Rodlista2015.csv", quiet=FALSE)
+}
+```
+
+
+```{r read redlist data, echo = FALSE}
+redlist <- read_delim("../../Data/Rodlista2015.csv",  delim =",", show_col_types = FALSE)[c("Vitenskapelig navn", "Kategori")]
+redlist <- filter(redlist, )
+
+
+```
+
+
+
