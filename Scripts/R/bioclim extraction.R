@@ -38,7 +38,7 @@ plot(rasterm)
 plot(norway0, add=T)
 
 rasterm
-
+saveRDS(rasterm, 'raster_covariates.RDS')
 # upscale to 0.025 ######
 
 r_up_0.025 <- aggregate(rasterm, fact = 0.025/res(rasterm)) # aggregate output
