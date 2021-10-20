@@ -86,6 +86,8 @@ grid_data <- sp::SpatialPointsDataFrame(coords = data.frame(joined$x1, joined$x2
 colnames(grid_data@coords) <- c('x','y')
 
 ##Remove all points in the sea???
+
+grid_data <- grid_data[!is.na(over(grid_data, norway.poly)),]
 ggplot() + gg(norway.poly) + gg(grid_data, col = 'red') #+ gg(grid)
 
 species <- unique(grid_data$scientificName)
