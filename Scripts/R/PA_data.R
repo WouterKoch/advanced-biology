@@ -3,8 +3,8 @@ library(dplyr)
 ## 2.1. Download the PA data from GBIF.
 
 download_url_trd <- "https://gbif.vm.ntnu.no/ipt/archive.do?r=vascularplantfieldnotes"
-if(!file.exists("C:/advanced-biology/Scripts/Data/gbif_PA_trd.zip")) {
-  download.file(url=download_url_trd, destfile="C:/advanced-biology/Scripts/Data/gbif_PA_trd.zip", mode = "wb")
+if(!file.exists("Data/gbif_PA_trd.zip")) {
+  download.file(url=download_url_trd, destfile="Data/gbif_PA_trd.zip", mode = "wb")
 }
 
 download_url_osl <- "https://ipt.gbif.no/archive.do?r=o_vxl"
