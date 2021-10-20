@@ -26,10 +26,6 @@ IDs <- sapply(strsplit(norwayfill$names, ":"), function(x) x[1])
 norway.poly <- map2SpatialPolygons(norwayfill, IDs = IDs, 
                                    proj4string = Projection)
 
-##Read in PO data
-
-##DO
-
 ##Read in PA data
 setwd('/Users/philism/Downloads/')
 
@@ -44,7 +40,6 @@ oslo_data <- olso_data[!(olso_data$decimalLatitude == 0),]
 ##Combine Oslo + norge_data
 
 PA_data <- rbind(norge_data, olso_data)
-
 ##View most abundant species:: subset top 3
 
 abundant <- PA_data %>% group_by(scientificName) %>% count() %>% arrange(desc(n)) %>% data.frame
@@ -86,6 +81,8 @@ grid_data <- sp::SpatialPointsDataFrame(coords = data.frame(joined$x1, joined$x2
 colnames(grid_data@coords) <- c('x','y')
 
 ##Remove all points in the sea???
+
+grid_data <- grid_data[!is.na(over(grid_data, norway.poly)),]
 ggplot() + gg(norway.poly) + gg(grid_data, col = 'red') #+ gg(grid)
 
 species <- unique(grid_data$scientificName)
@@ -123,7 +120,51 @@ for (i in 1:nrow(unique_grid)) {
 }
 
 PA_data <- do.call(rbind.SpatialPointsDataFrame, grid_index)
+colnames(PA_data@coords) <- c('Longitude','Latitude')
+ggplot() + gg(PA_data, aes(col = factor(individualCount))) +
+  facet_grid(~scientificName) +
+  gg(norway.poly) +
+  gg(spgrdWithin) +
+  coord_equal() +
+  scale_fill_continuous(guide = guide_legend()) +
+  scale_color_manual(labels = c('Absent', "Present"), values = c("#d11141", "#00aedb")) +
+  labs(x = 'Longitude', y = 'Latitude', col = 'Grid Observation') +
+  ggtitle('Present absence data') +
+  theme_classic() +
+  theme(legend.position="bottom",
+        plot.title = element_text(hjust = 0.5))
 
+ggsave('PA_plot.png',
+       width = 40,
+       height = 40,
+       units = 'cm')
+
+##Read in PO data
+
+PO_data <- read.csv('Presence only - VU (selected species).csv')
+
+PO_data <- sp::SpatialPointsDataFrame(coords = data.frame(PO_data$decimalLongitude, PO_data$decimalLatitude),
+                                      data = data.frame(scientificName = PO_data$scientificName),
+                                      proj4string = Projection)
+##Remove points in sea
+PO_data <- PO_data[!is.na(over(PO_data, norway.poly)),]
+colnames(PO_data@coords) <- c('Longitude','Latitude')
+
+ggplot() +
+  gg(norway.poly) +
+  gg(PO_data, aes(col = scientificName)) +
+  coord_equal() +
+  scale_color_manual(values = c("#d11141", "#00aedb",'#00b159')) + 
+  labs(x = 'Longitude', y = 'Latitude', col = 'Scientific name') +
+  ggtitle('Present only data') +
+  theme_classic() +
+  theme(legend.position="bottom",
+        plot.title = element_text(hjust = 0.5))
+
+ggsave('PO_plot.png',
+       width = 40,
+       height = 40,
+       units = 'cm')
 ##Read in habitat + climate data
 
 
@@ -131,9 +172,15 @@ PA_data <- do.call(rbind.SpatialPointsDataFrame, grid_index)
 #Meshpars <- list(cutoff=0.08, max.edge=c(0.6, 3), offset=c(1,1))
 Meshpars <- list(cutoff=0.08, max.edge=c(1, 3), offset=c(1,1))
 
-
-Spatial_data <- organize_data(..., poresp,paresp,trialname,coords, proj = Projection,
-                              speciesname, meshpars = Meshpars, boundary = norway.poly)
+Spatial_data <- organize_data(PO_data,
+                              PA_data, 
+                              poresp = 'response',
+                              paresp = 'individualCount',
+                              coords = c('Longitude','Latitude'),
+                              proj = Projection,
+                              speciesname = 'scientificName',
+                              meshpars = Meshpars,
+                              boundary = norway.poly)
 
 Spatial_model <- bru_sdm(spatial_data, spatialcovariates, specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
