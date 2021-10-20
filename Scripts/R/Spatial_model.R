@@ -138,7 +138,8 @@ ggsave('PA_plot.png',
        width = 40,
        height = 40,
        units = 'cm')
-
+PA_data$scientificName <- gsub(' ','_',PA_data$scientificName)
+saveRDS(PA_data, 'PA_data.RDS')
 ##Read in PO data
 
 PO_data <- read.csv('Presence only - VU (selected species).csv')
@@ -165,6 +166,10 @@ ggsave('PO_plot.png',
        width = 40,
        height = 40,
        units = 'cm')
+
+PO_data$scientificName <- gsub(' ','_',PO_data$scientificName)
+saveRDS(PO_data, 'PO_data.RDS')
+
 ##Read in habitat + climate data
 
 
@@ -183,7 +188,9 @@ Spatial_data <- organize_data(PO_data,
                               boundary = norway.poly)
 
 ##setwd
-Spatial_model <- bru_sdm(spatial_data, spatialcovariates, specieseffects = TRUE,
+Spatial_model <- bru_sdm(spatial_data, spatialcovariates = raster_covariates,
+                         covariatestoinclude = c('mean_temperature_warmest_quarter','annual_percipitation'),
+                         specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
 
 saveRDS(Spatial_model, 'Spatial_model.RDS')
