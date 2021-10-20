@@ -40,7 +40,6 @@ oslo_data <- olso_data[!(olso_data$decimalLatitude == 0),]
 ##Combine Oslo + norge_data
 
 PA_data <- rbind(norge_data, olso_data)
-
 ##View most abundant species:: subset top 3
 
 abundant <- PA_data %>% group_by(scientificName) %>% count() %>% arrange(desc(n)) %>% data.frame
@@ -121,8 +120,8 @@ for (i in 1:nrow(unique_grid)) {
 }
 
 PA_data <- do.call(rbind.SpatialPointsDataFrame, grid_index)
-
-ggplot()  + gg(PA_data, aes(col = factor(individualCount))) +
+colnames(PA_data@coords) <- c('Longitude','Latitude')
+ggplot() + gg(PA_data, aes(col = factor(individualCount))) +
   facet_grid(~scientificName) +
   gg(norway.poly) +
   gg(spgrdWithin) +
@@ -135,7 +134,10 @@ ggplot()  + gg(PA_data, aes(col = factor(individualCount))) +
   theme(legend.position="bottom",
         plot.title = element_text(hjust = 0.5))
 
-#ggsave('PA_plot.png')
+ggsave('PA_plot.png',
+       width = 40,
+       height = 40,
+       units = 'cm')
 
 ##Read in PO data
 
@@ -146,6 +148,7 @@ PO_data <- sp::SpatialPointsDataFrame(coords = data.frame(PO_data$decimalLongitu
                                       proj4string = Projection)
 ##Remove points in sea
 PO_data <- PO_data[!is.na(over(PO_data, norway.poly)),]
+colnames(PO_data@coords) <- c('Longitude','Latitude')
 
 ggplot() +
   gg(norway.poly) +
@@ -158,7 +161,10 @@ ggplot() +
   theme(legend.position="bottom",
         plot.title = element_text(hjust = 0.5))
 
-#ggsave('PO_plot.png')
+ggsave('PO_plot.png',
+       width = 40,
+       height = 40,
+       units = 'cm')
 ##Read in habitat + climate data
 
 
@@ -166,9 +172,15 @@ ggplot() +
 #Meshpars <- list(cutoff=0.08, max.edge=c(0.6, 3), offset=c(1,1))
 Meshpars <- list(cutoff=0.08, max.edge=c(1, 3), offset=c(1,1))
 
-
-Spatial_data <- organize_data(..., poresp,paresp,trialname,coords, proj = Projection,
-                              speciesname, meshpars = Meshpars, boundary = norway.poly)
+Spatial_data <- organize_data(PO_data,
+                              PA_data, 
+                              poresp = 'response',
+                              paresp = 'individualCount',
+                              coords = c('Longitude','Latitude'),
+                              proj = Projection,
+                              speciesname = 'scientificName',
+                              meshpars = Meshpars,
+                              boundary = norway.poly)
 
 Spatial_model <- bru_sdm(spatial_data, spatialcovariates, specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
