@@ -26,10 +26,6 @@ IDs <- sapply(strsplit(norwayfill$names, ":"), function(x) x[1])
 norway.poly <- map2SpatialPolygons(norwayfill, IDs = IDs, 
                                    proj4string = Projection)
 
-##Read in PO data
-
-##DO
-
 ##Read in PA data
 setwd('/Users/philism/Downloads/')
 
@@ -134,9 +130,35 @@ ggplot()  + gg(PA_data, aes(col = factor(individualCount))) +
   scale_fill_continuous(guide = guide_legend()) +
   scale_color_manual(labels = c('Absent', "Present"), values = c("#d11141", "#00aedb")) +
   labs(x = 'Longitude', y = 'Latitude', col = 'Grid Observation') +
+  ggtitle('Present absence data') +
   theme_classic() +
-  theme(legend.position="bottom")
+  theme(legend.position="bottom",
+        plot.title = element_text(hjust = 0.5))
 
+#ggsave('PA_plot.png')
+
+##Read in PO data
+
+PO_data <- read.csv('Presence only - VU (selected species).csv')
+
+PO_data <- sp::SpatialPointsDataFrame(coords = data.frame(PO_data$decimalLongitude, PO_data$decimalLatitude),
+                                      data = data.frame(scientificName = PO_data$scientificName),
+                                      proj4string = Projection)
+##Remove points in sea
+PO_data <- PO_data[!is.na(over(PO_data, norway.poly)),]
+
+ggplot() +
+  gg(norway.poly) +
+  gg(PO_data, aes(col = scientificName)) +
+  coord_equal() +
+  scale_color_manual(values = c("#d11141", "#00aedb",'#00b159')) + 
+  labs(x = 'Longitude', y = 'Latitude', col = 'Scientific name') +
+  ggtitle('Present only data') +
+  theme_classic() +
+  theme(legend.position="bottom",
+        plot.title = element_text(hjust = 0.5))
+
+#ggsave('PO_plot.png')
 ##Read in habitat + climate data
 
 
