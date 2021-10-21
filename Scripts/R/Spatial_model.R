@@ -199,14 +199,14 @@ saveRDS(Spatial_model, 'Spatial_model.RDS')
 
 projections_lin <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
                            datasetstopredict = Spatial_model$dataset_names,
-                           covariates = 'annual_percipitation', intercept = TRUE, species = TRUE,
+                           covariates = c('mean_temperature_warmest_quarter','annual_percipitation'), intercept = TRUE, species = TRUE,
                            spatial = TRUE, fun = 'linear', n.samples = 1000)
 
 saveRDS(projections_lin, 'projections_lin.RDS')
 
 projections_exp <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norway.poly,
                            datasetstopredict = Spatial_model$dataset_names,
-                           covariates = 'annual_percipitation', intercept = TRUE, species = TRUE,
+                           covariates = c('mean_temperature_warmest_quarter','annual_percipitation'), intercept = TRUE, species = TRUE,
                            spatial = TRUE, fun = 'exp', n.samples = 1000)
 
 saveRDS(projections_exp, 'projections_exp.RDS')
