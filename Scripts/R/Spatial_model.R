@@ -173,6 +173,7 @@ saveRDS(PO_data, 'PO_data.RDS')
 
 ##Read in habitat + climate data
 
+raster_covariates <- readRDS('raster_covariates.RDS')
 
 ## Model fitting part
 #Meshpars <- list(cutoff=0.08, max.edge=c(0.6, 3), offset=c(1,1))
