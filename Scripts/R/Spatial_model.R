@@ -233,7 +233,4 @@ int_plot <- ggplot() +
         plot.title = element_text(hjust = 0.5))
 int_plot
 
-ggsave('int_plot.png',
-       height = 40,
-       width = 40,
-       units = 'cm')
+ggsave('int_plot.jpeg')
