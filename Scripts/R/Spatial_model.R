@@ -14,6 +14,7 @@ library(INLA)
 library(rgeos)
 library(fields)
 library(viridis)
+library(RColorBrewer)
 
 ##Get map of Norway:
  #Correct projection?
@@ -210,6 +211,29 @@ projections_exp <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norwa
 
 saveRDS(projections_exp, 'projections_exp.RDS')
 
+projections_lin <- readRDS('projections_lin.RDS')
 
 
+colours <- function(obj,statistic) {
+  
+  scale_fill_gradientn(colours = rev(brewer.pal(9,"YlGn")),
+                       limits = range(obj@data[,statistic]))
+  
+}
 
+int_plot <- ggplot() + 
+  gg(projections_lin, aes(fill = mean)) +
+  facet_grid(~scientificName) + 
+  gg(norway.poly) +
+  colours(projections_lin, 'mean') + 
+  labs(x = 'Longitude', y = 'Latitude', col = 'Scientific name') +
+  ggtitle('Intensity surface') +
+  theme_classic() +
+  theme(legend.position="bottom",
+        plot.title = element_text(hjust = 0.5))
+int_plot
+
+ggsave('int_plot.png',
+       height = 40,
+       width = 40,
+       units = 'cm')
