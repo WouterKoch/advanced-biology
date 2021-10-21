@@ -39,7 +39,12 @@ gbif_data_oslo <- read.table(unzip(zipfile = "Data/gbif_PA_osl.zip", files="occu
 ## filter data based on redlist
 
 # read redlist data
-redlist <- read.csv2("Data/Rodlista2015_Artsdatabanken_format.csv")[c("Vitenskapelig.navn", "Kategori")]
+download_url_redlist <- "https://artsdatabanken.no/Rodliste2015/sok/Eksport?kategori=re%2ccr%2cen%2cvu%2cnt%2cdd&vurderings%u00e5r=2015&vurderingscontext=n&taxonrank=species"
+if(!file.exists("Data/Rodlista2015_Artsdatabanken_format.csv")) {
+  download.file(url=download_url_redlist, destfile="Data/Rodlista2015_Artsdatabanken_format.csv", mode = "wb")
+}
+
+redlist <- read.csv2("Data/Rodlista2015_Artsdatabanken_format.csv", na.strings = c("", NA), fileEncoding="UTF-16LE")[c("Vitenskapelig.navn", "Kategori")]
 
 # select species in PA file also present in redlist
 # note: species names in PA file does not seem to be formatted in a consequent way, 
