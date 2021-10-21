@@ -211,7 +211,9 @@ projections_exp <- predict(Spatial_model, mesh = Spatial_data@mesh, mask = norwa
 
 saveRDS(projections_exp, 'projections_exp.RDS')
 
-projections_lin <- readRDS('projections_lin.RDS')
+#projections_lin <- readRDS('projections_lin.RDS')
+projections_lin <- readRDS('projections_lin_2_covs.RDS')
+
 
 
 colours <- function(obj,statistic) {
