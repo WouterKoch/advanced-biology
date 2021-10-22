@@ -191,7 +191,7 @@ Spatial_data <- organize_data(PO_data,
 
 ##setwd
 raster_covariates <- as(raster_covariates, 'SpatialPixelsDataFrame')
-Spatial_model <- bru_sdm(spatial_data, spatialcovariates = raster_covariates,
+Spatial_model <- bru_sdm(Spatial_data, spatialcovariates = raster_covariates,
                          covariatestoinclude = c('mean_temperature_warmest_quarter','annual_percipitation'),
                          specieseffects = TRUE,
                          options = list(control.inla = list(int.strategy = 'eb')))
